@@ -22,7 +22,7 @@ public class StateMachine<S, T> {
     protected final StateMachineConfig<S, T> config;
     protected final Func<S> stateAccessor;
     protected final Action1<S> stateMutator;
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger ;
     protected Action2<S, T> unhandledTriggerAction = new Action2<S, T>() {
 
         public void doIt(S state, T trigger) {
@@ -42,6 +42,35 @@ public class StateMachine<S, T> {
      */
     public StateMachine(S intialState) {
         this(intialState, new StateMachineConfig<S, T>());
+    }
+
+    /**
+     * Construct a state machine
+     *
+     * @param initialState The initial state
+     * @param config       State machine configuration
+     */
+    public StateMachine(S initialState, StateMachineConfig<S, T> config,Logger logger) {
+        this.config = config;
+        final StateReference<S, T> reference = new StateReference<>();
+        reference.setState(initialState);
+        stateAccessor = new Func<S>() {
+            @Override
+            public S call() {
+                return reference.getState();
+            }
+        };
+        stateMutator = new Action1<S>() {
+            @Override
+            public void doIt(S s) {
+                reference.setState(s);
+            }
+        };
+        if (config.isEntryActionOfInitialStateEnabled()) {
+            Transition<S,T> initialTransition = new Transition(initialState, initialState, null);
+            getCurrentRepresentation().enter(initialTransition);
+        }
+        this.logger=logger;
     }
 
     /**
@@ -70,6 +99,7 @@ public class StateMachine<S, T> {
             Transition<S,T> initialTransition = new Transition(initialState, initialState, null);
             getCurrentRepresentation().enter(initialTransition);
         }
+        logger = LoggerFactory.getLogger(getClass());
     }
 
     /**
@@ -84,6 +114,7 @@ public class StateMachine<S, T> {
         this.stateAccessor = stateAccessor;
         this.stateMutator = stateMutator;
         stateMutator.doIt(initialState);
+        logger = LoggerFactory.getLogger(getClass());
     }
 
     public StateConfiguration<S, T> configure(S state) {
@@ -185,7 +216,7 @@ public class StateMachine<S, T> {
     }
 
     protected void publicFire(T trigger, Object... args) {
-        logger.info("Firing " + trigger);
+        logger.info("{} Firing " + trigger,logger.getName());
         TriggerWithParameters<S, T> configuration = config.getTriggerConfiguration(trigger);
         if (configuration != null) {
             configuration.validateParameters(args);
