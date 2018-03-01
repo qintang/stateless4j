@@ -216,7 +216,7 @@ public class StateMachine<S, T> {
     }
 
     protected void publicFire(T trigger, Object... args) {
-        logger.info("{} Firing " + trigger,logger.getName());
+        logger.debug("{} Firing " + trigger,logger.getName());
         TriggerWithParameters<S, T> configuration = config.getTriggerConfiguration(trigger);
         if (configuration != null) {
             configuration.validateParameters(args);
