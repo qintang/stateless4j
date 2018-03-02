@@ -176,7 +176,8 @@ public class StateMachineConfig<TState,TTrigger> {
                         if (triggerBehaviour instanceof TransitioningTriggerBehaviour) {
                             destination.set(null);
                             triggerBehaviour.resultsInTransitionFrom(null, null, destination);
-                            writer.write(String.format("\t%s -> %s;\n", entry.getKey(), destination));
+                            writer.write(String.format("\t%s -> %s[label=\"%s\"];\n", entry.getKey(), destination,
+                                    triggerBehaviour.getTrigger()));
                         }
                     }
                 }
