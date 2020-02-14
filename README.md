@@ -2,13 +2,13 @@ Maven
 =====
 ```xml
     <dependency>
-        <groupId>com.github.oxo42</groupId>
+        <groupId>com.github.stateless4j</groupId>
         <artifactId>stateless4j</artifactId>
-        <version>2.5.0</version>
+        <version>2.6.0</version>
     </dependency>
 ```
 
-[![Build Status](https://travis-ci.org/oxo42/stateless4j.svg?branch=master)](https://travis-ci.org/oxo42/stateless4j)
+[![Build Status](https://api.travis-ci.org/stateless4j/stateless4j.svg?branch=master)](https://travis-ci.org/stateless4j/stateless4j)
 
 Introduction
 ============
@@ -53,6 +53,8 @@ Most standard state machine constructs are supported:
 * Hierarchical states
 * Entry/exit events for states
 * Guard clauses to support conditional transitions
+* User-defined actions can be executed when transitioning
+* Internal transitions (not calling `onExit`/`onEntry`)
 * Introspection
 
 
@@ -89,6 +91,27 @@ methods being called repeatedly because the `OnHold` state is a substate of the 
 Entry/Exit event handlers can be supplied with a parameter of type `Transition` that describes the trigger,
 source and destination states.
 
+Action on transition
+===================
+It is possible to execute a user-defined action when doing a transition.
+For a 'normal' or 're-entrant' transition this action will be called
+without any parameters. For 'dynamic' transitions (those who compute the
+target state based on trigger-given parameters) the parameters of the
+trigger will be given to the action.
+
+This action is only executed if the transition is actually taken; so if
+the transition is guarded and the guard forbids a transition, then the
+action is not executed.
+
+If the transition is taken, the action will be executed between the
+`onExit` handler of the current state and the `onEntry` handler of the
+target state (which might be the same state in case of a re-entrant
+transition.
+
 License
 =======
 Apache 2.0 License
+
+Created by [@oxo42](https://github.com/oxo42)
+
+Maintained by Chris Narkiewicz [@ezaquarii](https://github.com/ezaquarii)

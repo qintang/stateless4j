@@ -1,11 +1,15 @@
 package com.github.oxo42.stateless4j.triggers;
 
 import com.github.oxo42.stateless4j.delegates.FuncBoolean;
-import com.github.oxo42.stateless4j.OutVar;
 
 public abstract class TriggerBehaviour<S, T> {
 
     private final T trigger;
+
+    /**
+     * Note that this guard gets called quite often, and sometimes multiple times per fire() call.
+     * Thus, it should not be anything performance intensive.
+     */
     private final FuncBoolean guard;
 
     protected TriggerBehaviour(T trigger, FuncBoolean guard) {
@@ -17,9 +21,15 @@ public abstract class TriggerBehaviour<S, T> {
         return trigger;
     }
 
+    public abstract void performAction(Object[] args);
+
+    public boolean isInternal() {
+        return false;
+    }
+
     public boolean isGuardConditionMet() {
         return guard.call();
     }
 
-    public abstract boolean resultsInTransitionFrom(S source, Object[] args, OutVar<S> dest);
+    public abstract S transitionsTo(S source, Object[] args);
 }
