@@ -168,6 +168,9 @@ public class StateMachineConfig<TState,TTrigger> {
         try (OutputStreamWriter w = new OutputStreamWriter(dotFile, "UTF-8")) {
             PrintWriter writer = new PrintWriter(w);
             writer.write("digraph G {\n");
+            writer.write("\trankdir=LR;\n" +
+                    /*"\tsize=\"8,5\"\n" +*/
+                    "\tnode [shape = circle];\n");
             OutVar<TState> destination = new OutVar<>();
             for (Map.Entry<TState, StateRepresentation<TState, TTrigger>> entry : this.stateConfiguration.entrySet()) {
                 Map<TTrigger, List<TriggerBehaviour<TState, TTrigger>>> behaviours = entry.getValue().getTriggerBehaviours();
@@ -176,8 +179,11 @@ public class StateMachineConfig<TState,TTrigger> {
                         if (triggerBehaviour instanceof TransitioningTriggerBehaviour) {
                             destination.set(null);
                             triggerBehaviour.resultsInTransitionFrom(null, null, destination);
-                            writer.write(String.format("\t%s -> %s[label=\"%s\"];\n", entry.getKey(), destination,
-                                    triggerBehaviour.getTrigger()));
+                            String color=X11ColorScheme.randomColor();
+                            String label=String.format("<<font size=\"5\" face=\"arial\" color=\"%s\">%s</font>>",
+                                    color, triggerBehaviour.getTrigger());
+                            writer.write(String.format("\t%s -> %s[label=%s,color=%s];\n", entry.getKey(), destination,
+                                    label,color));
                         }
                     }
                 }
